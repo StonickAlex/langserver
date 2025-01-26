@@ -7,15 +7,14 @@ const { Configuration, OpenAIApi } = require('openai');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
 app.use(cors());
 app.use(bodyParser.json());
-
 
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
+
 
 app.post('/generate-text', async(req, res) => {
     const { level } = req.body;
@@ -27,16 +26,16 @@ app.post('/generate-text', async(req, res) => {
     try {
         const prompt = `Создай случайный текст уровня "${level}" на русском языке. Укажи перевод на польский. Ответ верни в формате JSON с полями "russian" и "polish".`;
 
-        const response = await openai.createCompletion({
-            model: 'text-davinci-003',
-            prompt,
+        const response = await openai.createChatCompletion({
+            model: 'gpt-3.5-turbo',
+            messages: [{ role: 'user', content: prompt }],
             max_tokens: 300,
         });
 
-        const generatedText = JSON.parse(response.data.choices[0].text.trim());
+        const generatedText = JSON.parse(response.data.choices[0].message.content.trim());
         res.json(generatedText);
     } catch (error) {
-        console.error('Error generating text:', error);
+        console.error('Error generating text:', error.message);
         res.status(500).json({ error: 'Failed to generate text.' });
     }
 });
@@ -52,20 +51,19 @@ app.post('/check-translation', async(req, res) => {
     try {
         const prompt = `Проверь перевод с русского на польский. Оригинальный текст: "${originalText}". Перевод пользователя: "${userTranslation}". Скажи, правильный ли перевод, и укажи ошибки, если они есть.`;
 
-        const response = await openai.createCompletion({
-            model: 'text-davinci-003',
-            prompt,
+        const response = await openai.createChatCompletion({
+            model: 'gpt-3.5-turbo',
+            messages: [{ role: 'user', content: prompt }],
             max_tokens: 500,
         });
 
-        const result = response.data.choices[0].text.trim();
+        const result = response.data.choices[0].message.content.trim();
         res.json({ result });
     } catch (error) {
-        console.error('Error checking translation:', error);
+        console.error('Error checking translation:', error.message);
         res.status(500).json({ error: 'Something went wrong with OpenAI API.' });
     }
 });
-
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
