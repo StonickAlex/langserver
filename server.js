@@ -35,8 +35,8 @@ app.post('/generate-text', async(req, res) => {
             max_tokens: 300,
         });
 
-        const generatedText = JSON.parse(response.choices[0].message.content.trim());
-        res.json(generatedText);
+        const generatedText = response.choices[0].message.content.trim();
+        res.json({ russian: generatedText, polish: "translated_polish_text" });
     } catch (error) {
         console.error('Ошибка при генерации текста:', error.message);
         res.status(500).json({ error: 'Не удалось сгенерировать текст.' });
