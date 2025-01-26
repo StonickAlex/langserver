@@ -1,5 +1,11 @@
 {
-  "dependencies": {
-    "openai": "^4.80.1"
-  }
+    "dependencies": {
+        "openai": "^4.80.1"
+
+    },
+    "scripts": {
+        "start": "node server.js"
+    }
+
+
 }
