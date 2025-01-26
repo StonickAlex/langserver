@@ -15,7 +15,6 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-
 app.post('/generate-text', async(req, res) => {
     const { level } = req.body;
 
@@ -37,31 +36,6 @@ app.post('/generate-text', async(req, res) => {
     } catch (error) {
         console.error('Error generating text:', error.message);
         res.status(500).json({ error: 'Failed to generate text.' });
-    }
-});
-
-
-app.post('/check-translation', async(req, res) => {
-    const { originalText, userTranslation } = req.body;
-
-    if (!originalText || !userTranslation) {
-        return res.status(400).json({ error: 'Both originalText and userTranslation are required.' });
-    }
-
-    try {
-        const prompt = `Проверь перевод с русского на польский. Оригинальный текст: "${originalText}". Перевод пользователя: "${userTranslation}". Скажи, правильный ли перевод, и укажи ошибки, если они есть.`;
-
-        const response = await openai.createChatCompletion({
-            model: 'gpt-3.5-turbo',
-            messages: [{ role: 'user', content: prompt }],
-            max_tokens: 500,
-        });
-
-        const result = response.data.choices[0].message.content.trim();
-        res.json({ result });
-    } catch (error) {
-        console.error('Error checking translation:', error.message);
-        res.status(500).json({ error: 'Something went wrong with OpenAI API.' });
     }
 });
 
