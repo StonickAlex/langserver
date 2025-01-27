@@ -32,7 +32,7 @@ app.post('/generate-text', async(req, res) => {
         const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages: [{ role: 'user', content: prompt }],
-            max_tokens: 300,
+            max_tokens: 1000,
         });
 
         const generatedText = response.choices[0].message.content.trim();
@@ -56,7 +56,7 @@ app.post('/check-translation', async(req, res) => {
         const feedbackResponse = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages: [{ role: 'user', content: prompt }],
-            max_tokens: 300,
+            max_tokens: 1000,
         });
 
         const feedback = feedbackResponse.choices[0].message.content.trim();
