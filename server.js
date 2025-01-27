@@ -1,14 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const { OpenAI } = require('openai');
+const { OpenAI } = require("openai");
 
 const app = express();
 const port = 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-
 
 
 const openai = new OpenAI({
@@ -19,15 +18,13 @@ app.post("/generate-text", async(req, res) => {
     const { level } = req.body;
 
     try {
-        const response = await openai.createChatCompletion({
-            model: "gpt-4",
-            messages: [
-                { role: "system", content: "Генерируй текст на русском языке для уровня: " + level },
-                { role: "user", content: `Создай текст для уровня ${level}` },
-            ],
+        const response = await openai.completions.create({
+            model: "text-davinci-003",
+            prompt: `Создай текст для уровня ${level} на русском языке`,
+            max_tokens: 1000,
         });
 
-        const generatedText = response.data.choices[0].message.content;
+        const generatedText = response.choices[0].text;
         res.json({ russian: generatedText });
     } catch (error) {
         console.error("Ошибка при генерации текста:", error);
@@ -35,20 +32,17 @@ app.post("/generate-text", async(req, res) => {
     }
 });
 
-
 app.post("/check-translation", async(req, res) => {
     const { originalText, userTranslation } = req.body;
 
     try {
-        const feedback = await openai.createChatCompletion({
-            model: "gpt-4",
-            messages: [
-                { role: "system", content: "Ты проверяешь переводы и даешь советы по исправлению ошибок." },
-                { role: "user", content: `Оригинальный текст: ${originalText}. Перевод пользователя: ${userTranslation}` },
-            ],
+        const feedback = await openai.completions.create({
+            model: "text-davinci-003",
+            prompt: `Оригинальный текст: ${originalText}. Перевод пользователя: ${userTranslation}. Пожалуйста, проверь и предложи исправления.`,
+            max_tokens: 1000,
         });
 
-        const result = feedback.data.choices[0].message.content;
+        const result = feedback.choices[0].text;
         res.json({ result });
     } catch (error) {
         console.error("Ошибка при проверке перевода:", error);
