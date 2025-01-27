@@ -1,48 +1,61 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const { OpenAI } = require('openai');
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const { Configuration, OpenAIApi } = require("openai");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
 
-if (!process.env.OPENAI_API_KEY) {
-    console.error('OPENAI_API_KEY отсутствует');
-    process.exit(1);
-}
-
-const openai = new OpenAI({
+const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 });
+const openai = new OpenAIApi(configuration);
 
-app.post('/generate-text', async(req, res) => {
+
+app.post("/generate-text", async(req, res) => {
     const { level } = req.body;
 
-    if (!level) {
-        return res.status(400).json({ error: 'Не указан уровень.' });
-    }
-
     try {
-        const prompt = `Создай случайный текст уровня "${level}" на русском языке Объем текста не меньше 60 слов. Укажи перевод на польский. Ответ верни в формате JSON с полями "russian" и "polish".`;
-
-        const response = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo',
-            messages: [{ role: 'user', content: prompt }],
-            max_tokens: 300,
+        const response = await openai.createChatCompletion({
+            model: "gpt-4",
+            messages: [
+                { role: "system", content: "Генерируй текст на русском языке для уровня: " + level },
+                { role: "user", content: `Создай текст для уровня ${level}` },
+            ],
         });
 
-        const generatedText = response.choices[0].message.content.trim();
-        res.json({ russian: generatedText, polish: "translated_polish_text" });
+        const generatedText = response.data.choices[0].message.content;
+        res.json({ russian: generatedText });
     } catch (error) {
-        console.error('Ошибка при генерации текста:', error.message);
-        res.status(500).json({ error: 'Не удалось сгенерировать текст.' });
+        console.error("Ошибка при генерации текста:", error);
+        res.status(500).json({ error: "Не удалось сгенерировать текст." });
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Сервер запущен на http://localhost:${PORT}`);
+
+app.post("/check-translation", async(req, res) => {
+    const { originalText, userTranslation } = req.body;
+
+    try {
+        const feedback = await openai.createChatCompletion({
+            model: "gpt-4",
+            messages: [
+                { role: "system", content: "Ты проверяешь переводы и даешь советы по исправлению ошибок." },
+                { role: "user", content: `Оригинальный текст: ${originalText}. Перевод пользователя: ${userTranslation}` },
+            ],
+        });
+
+        const result = feedback.data.choices[0].message.content;
+        res.json({ result });
+    } catch (error) {
+        console.error("Ошибка при проверке перевода:", error);
+        res.status(500).json({ error: "Ошибка проверки перевода." });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Сервер запущен на http://localhost:${port}`);
 });
