@@ -38,35 +38,13 @@ app.post('/generate-text', async(req, res) => {
         const generatedText = response.choices[0].message.content.trim();
 
 
-        const russianText = generatedText.split('\n')[0];
+        const splitText = generatedText.split('Польский:');
+
+        const russianText = splitText[0].trim();
         res.json({ russian: russianText });
     } catch (error) {
         console.error('Ошибка при генерации текста:', error.message);
         res.status(500).json({ error: 'Не удалось сгенерировать текст.' });
-    }
-});
-
-app.post('/check-translation', async(req, res) => {
-    const { originalText, userTranslation } = req.body;
-
-    if (!originalText || !userTranslation) {
-        return res.status(400).json({ error: 'Оригинальный текст или перевод не указан.' });
-    }
-
-    try {
-        const prompt = `Ты проверяешь переводы наглядно сравниваешь текст пользователя и правильный перевод, после показа ему ты даешь советы по исправлению ошибок.Польский язык, не забывай. Оригинальный текст: ${originalText}. Перевод пользователя: ${userTranslation}.`;
-
-        const feedbackResponse = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo',
-            messages: [{ role: 'user', content: prompt }],
-            max_tokens: 300,
-        });
-
-        const feedback = feedbackResponse.choices[0].message.content.trim();
-        res.json({ result: feedback });
-    } catch (error) {
-        console.error('Ошибка при проверке перевода:', error.message);
-        res.status(500).json({ error: 'Ошибка проверки перевода.' });
     }
 });
 
