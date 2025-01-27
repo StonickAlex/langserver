@@ -9,10 +9,9 @@ const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-const configuration = new Configuration({
+const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 
 app.post("/generate-text", async(req, res) => {
