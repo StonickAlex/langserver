@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const { Configuration, OpenAIApi } = require("openai");
+const { OpenAI } = require('openai');
 
 const app = express();
 const port = 3000;
@@ -9,10 +9,11 @@ const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+
+
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-
 
 app.post("/generate-text", async(req, res) => {
     const { level } = req.body;
