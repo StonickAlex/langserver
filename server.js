@@ -36,13 +36,15 @@ app.post('/generate-text', async(req, res) => {
         });
 
         const generatedText = response.choices[0].message.content.trim();
-        res.json({ russian: generatedText, polish: "translated_polish_text" });
+
+
+        const russianText = generatedText.split('\n')[0];
+        res.json({ russian: russianText });
     } catch (error) {
         console.error('Ошибка при генерации текста:', error.message);
         res.status(500).json({ error: 'Не удалось сгенерировать текст.' });
     }
 });
-
 
 app.post('/check-translation', async(req, res) => {
     const { originalText, userTranslation } = req.body;
