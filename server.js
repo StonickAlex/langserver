@@ -52,7 +52,7 @@ app.post('/check-translation', async(req, res) => {
     }
 
     try {
-        const prompt = `Ты проверяешь переводы и даешь советы по исправлению ошибок. Оригинальный текст: ${originalText}. Перевод пользователя: ${userTranslation}.`;
+        const prompt = `Ты проверяешь переводы наглядно сравниваешь текст пользователя и правильный перевод, после показа ему ты даешь советы по исправлению ошибок. Оригинальный текст: ${originalText}. Перевод пользователя: ${userTranslation}.`;
 
         const feedbackResponse = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
