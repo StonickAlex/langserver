@@ -27,7 +27,7 @@ app.post('/generate-text', async(req, res) => {
     }
 
     try {
-        const prompt = `Создай случайный текст уровня "${level}" на русском языке. Укажи перевод на польский. Ответ верни в формате JSON с полями "russian" и "polish".`;
+        const prompt = `Создай случайный текст уровня "${level}" на русском языке Объем текста не меньше 60 слов. Укажи перевод на польский. Ответ верни в формате JSON с полями "russian" и "polish".`;
 
         const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
